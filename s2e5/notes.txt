@@ -1,0 +1,208 @@
+
+s2e5
+
+app.get("/abc", (req, res) => {
+res.send("response");
+});
+
+(req, res) => {
+res.send("response");
+}
+this function is known as route handler
+
+app.use("/abc", (req, res) => {
+res.send("response");
+});
+what if we didnt send response
+what if we didnt send any response
+it goes to infinite loop, after sometime there will be timeout hit and after that this request will be timed out
+
+also one route can have the multiple route handlers
+
+app.use(
+"/abc",
+(req, res) => {
+res.send("response1");
+},
+(req, res) => {
+res.send("response2");
+}
+);
+which response we get
+we get response1
+why because once the route matches, first the code goes to the first route handler and if it sees res then it will be send the response
+
+app.use(
+"/abc",
+(req, res) => {
+
+},
+(req, res) => {
+res.send("response2");
+}
+);
+here we dont get any response and it goes infinit loop till it gets timedout
+but it can go to the second route handler or request handler
+for that we need to use next
+
+app.use(
+"/abc",
+(req, res, next) => {
+next();
+
+},
+(req, res) => {
+res.send("response2");
+}
+);
+now we can see the respone2
+
+what if now will it go to next as we have already a response1
+app.use(
+"/abc",
+(req, res, next) => {
+console.log("my response1")
+res.send("response1");  
+next();
+
+},
+(req, res) => {
+console.log("my response2")
+res.send("response2");
+}
+);
+we get
+"my response1"
+"response"
+"myresponse2"
+but along with below we got the error in the console
+"my response1"
+"response"
+"myresponse2"
+now the first route handler got executed and we got the response and since we have next it will go the next route handler and
+console get executed
+also then it will show an error because arleady response is sent
+only one response per one url
+a tcp connection is formed between server and client postman once the response is sent the tcp connection will be closed
+so here response1 is already sent right
+
+now what will happen
+app.use(
+"/abc",
+(req, res, next) => {
+console.log("my response1")
+next();
+res.send("response1");
+
+},
+(req, res) => {
+console.log("my response2")
+res.send("response2");
+}
+);
+here js code executes line by line right
+my response1
+my reponse2
+response2
+then we get code goes to the line res.send("response1") and now we get error in console as we already sent a response
+
+also we can add more route handlers
+but they go to next route handler only if we use next()
+
+one more
+app.use(
+"/abc",
+(req, res, next) => {
+console.log("my response1")
+next();
+
+},
+(req, res, next) => {
+console.log("my response2")
+next();
+},
+(req, res, next) => {
+console.log("my response3")
+next();
+},
+(req, res, next) => {
+console.log("my response4")
+next();
+},
+(req, res, next) => {
+console.log("my response5")
+next();
+},
+);
+now what will happen
+all console logs will print and code when reaches to last next()
+we get cannot get /
+because it is looking for another route handler and since it's not present we get this cannot get /
+for any route we need a route handler right
+in this case if you dont use next at last it will hang as there is no response at the last route handler
+we are keep all the route handlers in the array as well
+
+one more way to define route handler
+/one more to define route handler instead of nesting, this is same as the above
+app.get("/user", (req, res, next) => {
+console.log("handling first route hanlder");
+next();
+});
+
+app.get("/user", (req, res) => {
+console.log("second route handler");
+res.send("response2");
+});
+
+now also why we need all these route hanlders means why we need multiple route handlers for a route, does this actually needed
+the answer is middlewares
+usually we call them as route handlers but they are middlewares
+all the fucntions are known as middlewares but the funtion which actually sends the response is called as request handler or route handler
+
+//why we need middlewares
+app.get("/admin/getData", (req, res) => {
+//check if the request is authorised
+const token = "xyz";
+const isAdminAuthorized = token === "xyz";
+if (isAdminAuthorized) {
+res.send("data sent");
+//here by default for 200 http status code is sent
+} else {
+res.status(401).send("unauthorized request");
+}
+});
+
+app.get("/admin/delete/user", (req, res) => {
+//check if the request is authorised same again as above
+res.send("deleted a user");
+});
+
+//so if i have to put authorization to all the apis, i have to put the same code in all the apis, this is where middleware comes into the picture
+//how we can simplify this using middleware
+//handle auth middleware for all request, get, post etc...
+app.use("/admin", (req, res, next) => {
+const token = "xyz";
+const isAdminAuthorized = token === "xyz";
+if (!isAdminAuthorized) {
+res.status(401).send("unauthorized request");
+} else {
+next();
+}
+});
+
+app.get("/admin/getData", (req, res) => {
+res.send("data sent");
+});
+//this is why we use middlewares
+
+error handling
+always handle error properly using try catch
+app.get("/getUserData", (req, res, next)=>{
+res.send("data sent")
+})
+app.use("/", (err, req, res, next)=>{
+if(err){
+res.status(500).send("something went wrong");
+}
+})
+we can also try catch to handle the errors
