@@ -1,0 +1,80 @@
+to talk to the database if we use the library mongoose
+npm install moongoose
+
+//here we are connecting to the cluster
+mongoose.connect(
+"mongodb+srv://ganeshpavankumars:cOeeng04sYTtEKA9@namastenode.yqrkb.mongodb.net"
+);
+this returns a promise and tells if the connection is succesful or not, so put in async
+
+const connectDB = async () => {
+await mongoose.connect(
+"mongodb+srv://ganeshpavankumars:cOeeng04sYTtEKA9@namastenode.yqrkb.mongodb.net"
+);
+};
+
+connectDB()
+.then(() => {
+console.log("connection successful");
+})
+.catch((err) => {
+console.log("connection not successful");
+});
+
+usually we connect to the cluster
+if we add mongodb+srv://ganeshpavankumars:cOeeng04sYTtEKA9@namastenode.yqrkb.mongodb.net/hello, this connects to a specific db
+
+const connectDB = async () => {
+await mongoose.connect(
+"mongodb+srv://ganeshpavankumars:cOeeng04sYTtEKA9@namastenode.yqrkb.mongodb.net"
+);
+};
+
+connectDB()
+.then(() => {
+console.log("connection successful");
+})
+.catch((err) => {
+console.log("connection not successful");
+});
+also this is always not right way to connect to db
+as server is first connected to port and then db code runs
+so first connect to the db and listen on to the server for the requests
+once db connection is successful then only listen to the request
+so do like this
+onnectDB()
+.then(() => {
+console.log("db connection successful");
+
+    app.listen(3000, () => {
+      console.log("server is succesfully listening on port 3000");
+    });
+
+})
+.catch((err) => {
+console.log("db connection not successful");
+});
+
+schema
+schema is an identity for a collection documents
+like what things can have for a use collection
+create a schema using mongoose
+first we create a schema and then model
+schema tells you what all information about user are we storing into our database or what this user schema can store
+once after creating schema now we create mongoose model
+mongoose.model("User", userSchema);
+//name always capitalized so that it says like it is mongoose model
+//whenever we create mongodb database we create collection inside it
+//using this model ill create new instances of the model for any new user
+
+A model is a JavaScript class that represents a collection and adds:
+
+Schema validation (e.g., required fields, data types).
+
+Methods (e.g., save(), find()).
+
+Business logic (e.g., password hashing before saving).
+
+now create a post api
+
+\_id and \_\_v are created by mongodb automatically unique id and very useful
