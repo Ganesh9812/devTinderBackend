@@ -599,3 +599,37 @@ const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age"];
 now lets suppose we need a emailid, but emailid should be in a format not like a text right, so we need write a big regex instead of this we can take help of a library as well
 i can use this for api level validation or db level validaiton
 so now adding for schema/db level validation
+
+s2e9
+encrypting passwords
+we store our passwords as plain text into the db
+but we should not
+lot of security issues
+password should be store in encrypted or hash format
+nobody should be able to see the password
+lets see how can we keep our password safe
+
+signup api lot of issues
+lets first resolve them
+never truest request.body data coming from api and attacker can send any bad data
+even before const user = new User(req.body); we need to do the validation of data
+if data not correct throw error
+if data is correct then encrypt the password and then store this into the db
+validate
+encrypt
+store the password in db
+
+these validations we can do in db schema or validateSignUpData
+
+once validation is done
+then install bcryp libraray for password encryption
+now using bcrypt create a hash
+brcypt.hash returns a promise
+const passwordHash = bcrypt.hash(password, 10);
+10 is the salt rounds, more the salt rounds, more the complex the encryption
+
+now talk about login
+whenever we login we need to check the password right
+lets create a login api as well
+
+s2e10
