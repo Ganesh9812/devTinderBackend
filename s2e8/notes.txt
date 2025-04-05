@@ -1,0 +1,38 @@
+s2e8
+validations on the database
+need to check what we send to our db
+so that only valid data is sent to the db
+we are more into the post api or patch api where we need to have more checks
+mandatory fields like email, password required to signup
+so make fields mandatory by using required
+when we use required, user should mention these fields for sure either in api or in front end, these are mandatory else mongoose will not allow insertion into the db
+
+and also if want only one entry of emailid which means unique email in db
+which can throw email already exists
+so use unique field
+it will not allow me to insert the same emailid into my db
+we can also add a default value
+for eg: about: "this is a default about"
+
+by default validate method is called only when the new document is create not for update case
+
+so now how to know when the user registered into the platform or db like when was he signed up
+pass this { timeStamps: true }
+in document we will get created at and updated at
+
+now what to do in case if i want my user not to update or change his emailid
+how to add this type of check
+when im updating the user i should not be able to change the emailid
+i need to put api level validation
+
+also if im updating with new field, it will get updated, api is not sanitising the data.
+now we should make that we should be able to update only certain fields
+const ALLOWED_UPDATES = ["userId","photoUrl", "about", "gender", "age"];
+basically we need keep userId even though we are not changing because for updating we need userid else which document we will update
+also instead of getting userdId from the body, lets get userId from the url
+app.patch("/user/:userId", async (req, res) => {
+const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age"];
+
+now lets suppose we need a emailid, but emailid should be in a format not like a text right, so we need write a big regex instead of this we can take help of a library as well
+i can use this for api level validation or db level validaiton
+so now adding for schema/db level validation

@@ -13,7 +13,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("user added successfully");
   } catch (err) {
-    err.status(400).send("Error saving the user" + err.message);
+    res.status(400).send("Error saving the user" + err.message);
   }
 });
 
@@ -66,16 +66,27 @@ app.delete("/user", async (req, res) => {
 //findoneandupadte({_id: id}) is equivalent to findbyidandupdate(id)
 //ideally when we pass data, since userId is part of data, it should also be updated, but it will not as userId is not part of the schema
 //third parameter options is { returnDocument: "after" }, if we use after, the final document will be returned and if we use before, the document before update will be returned
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
   const data = req.body;
+
   try {
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
+
+    const isUpdatedAllowed = Object.keys(data).every((k) =>
+      ALLOWED_UPDATES.includes(k)
+    );
+
+    if (!isUpdatedAllowed) {
+      throw new Error("update not allowed");
+    }
     const user = await User.findByIdAndUpdate(userId, data, {
       returnDocument: "after",
+      runValidators: true,
     });
     res.send("user udpated succesfully");
   } catch (err) {
-    res.status(400).send("something went wrong");
+    res.status(400).send("update failed" + err.message);
   }
 });
 

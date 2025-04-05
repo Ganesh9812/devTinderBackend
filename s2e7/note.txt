@@ -1,0 +1,43 @@
+s2e7
+lets send user data in the api instead of in the code
+i should be sending data from postman and my api should receive the data and push into the db
+i should be sending json data to the server and server should be pushing that data into the db
+raw data and json in postman
+so express will convert req into object and will give us to use it
+req.body if we console
+we are getting undefined
+because we are getting json data and our server is not able to read the json data
+to read the json data we need the help of a middleware which i can use for all my apis
+this middleware takes the incoming request and converts json into js object and put it into the body and give us the access to the data
+this middle given by express and this is express.json()
+app.use(express.json());
+this will now activated for all the routes
+now req.body will be js object
+
+now lets ready the data from db
+get api to get all the users
+
+//get user by email
+app.get("/user", async (req, res) => {
+const userEmail = req.body.emailId;
+try {
+const users = await User.find({ emailId: userEmail });
+if (users.length === 0) {
+res.status(400).send("User not found");
+} else {
+res.send(users);
+}
+} catch (err) {
+res.status(400).send("something went wrong");
+}
+});
+
+right now here users in an array and find gives the duplicates as well if found
+
+but there is a method findOne this will give only one user
+
+also now lets see how we can make unique emailid rule
+
+now udpate api
+app.patch
+//findoneandupadte({\_id: id}) is equivalent to findbyidandupdate(id)
