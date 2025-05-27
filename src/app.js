@@ -4,9 +4,14 @@ const User = require("./models/user");
 const app = express();
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 app.use(express.json());
 //this runs for every request that comes to our server
+
+app.use(cookieParser());
+//now when the request comes, we will be able to read the cookies
 
 app.post("/signup", async (req, res) => {
   try {
@@ -120,6 +125,13 @@ app.post("/login", async (req, res) => {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
+      //create a jwt token
+      //lets write jwt token code here, first param is hiding the data in the token, here we are hiding userid
+      //second param is secret key, this is used to encrypt the data...this is kind of password and only server knows this
+      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790");
+
+      //add the token to the cookie and send back the response to the user
+      res.cookie("token", token);
       res.send("login successful");
     } else {
       throw new Error("password is not valid");

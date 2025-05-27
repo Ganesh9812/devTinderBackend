@@ -633,3 +633,68 @@ whenever we login we need to check the password right
 lets create a login api as well
 
 s2e10
+
+what happens when a user login for the first time
+if im a user and i want to access to my profile info, i cannot access without logging in
+unless we login we should not do anything like signup, request etc...
+all these things needs login first
+
+when a user makes a api call or communicate with the server
+we use the TCP protocall
+TCP/IP protocall
+for suppose profile api call
+server will send back the data and the connection is closed
+for everytime api call is made connection is made and closed
+
+and now customer made a patch api call to update the profile info
+everytime customer made a api call, the authentication happens to know if the user is valid or not
+everytime user makes an api call, the user needs to be validated
+the user needs to be validated if the request is coming from authorised source or not
+so here to happen all these the user should be logged in
+
+user makes a login request using emailid and password
+the server gives a authentication token (jwt token) and sends back to the user
+this token stored by the user
+now everytime whenever user makes an api call for any reason to fetch profile or update profile, the token is sent along with the api to the server to valide if the token is correct or not to make sure that user is authorised
+
+user first time login using emailid and password, the server sends back the user with jwt token and store in user browser
+now when user makes an api call -- this token sent to the server everytime for validation
+
+so everytime sending back to server for validation is kind of tough job
+so web came up with a solution which is known as cookies
+cookie -
+when user login - the server sends back the jwt token inside a cookie
+user login with emailid and password, the server validates the email and password
+and it will create a jwt token and wrap that token inside the cookie
+this token is unique only for this user
+now the server sends back the cookie in the response
+now all browsers will store this cookie inside them
+now if we make any api call like get data, this cookie goes along with the api to server and the cookie is validated
+and the profile info is fetched from db and sends back to the user
+on every api this cookie is validated by the server
+
+we can also set the expiry date of the cookie or jwt
+
+so when will this cookie not work
+i made some profile api to get somedata and if the cookie is expired, and the server will fail the validation
+and response will be please login and redirected to the login page
+
+when login, toke is sent in the cookie during login
+now when you make api call of profile data, ideally your token needs to be sent along with the api for validation, but to read the cookie we need to use
+cookie-parser library
+
+jwt token
+json web token
+very secret token with secret information in it
+this can contain special information
+see how we can create and use this
+jwt token
+contains
+red - header
+pink -secret data which i will hide in this token
+blue - signature
+
+header payload signature
+
+how to create jwt token
+npm i jsonwebtoken
