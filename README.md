@@ -685,7 +685,7 @@ cookie-parser library
 
 jwt token
 json web token
-very secret token with secret information in it
+very secret token with secret information in it like how logged in, user id is stored in the token
 this can contain special information
 see how we can create and use this
 jwt token
@@ -698,3 +698,68 @@ header payload signature
 
 how to create jwt token
 npm i jsonwebtoken
+
+only way to get the token is to login first
+
+now we will create a middleware
+why we need here
+i want my all apis to secure after login
+all apis work after authentication
+
+instead of writing token check in all the apis so better write a middle so that all apis it will work
+so creating in middlewares userauth
+
+now lets see how can we expire the jwt token
+
+const token = await jwt.sign({ \_id: user.\_id }, "DEV@Tinder$790", {
+expiresIn: "1d",
+});
+
+here we are just expiring the token,
+but we can also expire the cookies
+how do we expire cookies
+you can set that here
+res.cookie("token", token);
+
+moongoose schema methods
+i can attach some methods in user schema so that it will be applicable for all the users
+helper methods
+
+so you see we created jwt token in login api as below
+but we can offload this to different function lets see how we can do that
+so moving to user schema or user model by
+
+app.post("/login", async (req, res) => {
+try {
+//login api takes email and password validate email and password is correct
+//use bcrypt.compare
+const { emailId, password } = req.body;
+
+    //first check if the person emailId is valid or present in the db
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Emailid not present in the db");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      //create a jwt token
+      //lets write jwt token code here, first param is hiding the data in the token, here we are hiding userid
+      //second param is secret key, this is used to encrypt the data...this is kind of password and only server knows this
+      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790", {
+        expiresIn: "1d",
+      });
+
+      //add the token to the cookie and send back the response to the user and this token can be used for other api calls to validate which now will be present in req.cookies
+      res.cookie("token", token);
+      res.send("login successful");
+    } else {
+      throw new Error("password is not valid");
+    }
+
+} catch (err) {
+res.status(400).send("login failed" + err.message);
+}
+});
+
+s2e11

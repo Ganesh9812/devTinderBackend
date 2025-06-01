@@ -1,0 +1,127 @@
+what happens when a user login for the first time
+if im a user and i want to access to my profile info, i cannot access without logging in
+unless we login we should not do anything like signup, request etc...
+all these things needs login first
+
+when a user makes a api call or communicate with the server
+we use the TCP protocall
+TCP/IP protocall
+for suppose profile api call
+server will send back the data and the connection is closed
+for everytime api call is made connection is made and closed
+
+and now customer made a patch api call to update the profile info
+everytime customer made a api call, the authentication happens to know if the user is valid or not
+everytime user makes an api call, the user needs to be validated
+the user needs to be validated if the request is coming from authorised source or not
+so here to happen all these the user should be logged in
+
+user makes a login request using emailid and password
+the server gives a authentication token (jwt token) and sends back to the user
+this token stored by the user
+now everytime whenever user makes an api call for any reason to fetch profile or update profile, the token is sent along with the api to the server to valide if the token is correct or not to make sure that user is authorised
+
+user first time login using emailid and password, the server sends back the user with jwt token and store in user browser
+now when user makes an api call -- this token sent to the server everytime for validation
+
+so everytime sending back to server for validation is kind of tough job
+so web came up with a solution which is known as cookies
+cookie -
+when user login - the server sends back the jwt token inside a cookie
+user login with emailid and password, the server validates the email and password
+and it will create a jwt token and wrap that token inside the cookie
+this token is unique only for this user
+now the server sends back the cookie in the response
+now all browsers will store this cookie inside them
+now if we make any api call like get data, this cookie goes along with the api to server and the cookie is validated
+and the profile info is fetched from db and sends back to the user
+on every api this cookie is validated by the server
+
+we can also set the expiry date of the cookie or jwt
+
+so when will this cookie not work
+i made some profile api to get somedata and if the cookie is expired, and the server will fail the validation
+and response will be please login and redirected to the login page
+
+when login, toke is sent in the cookie during login
+now when you make api call of profile data, ideally your token needs to be sent along with the api for validation, but to read the cookie we need to use
+cookie-parser library
+
+jwt token
+json web token
+very secret token with secret information in it like how logged in, user id is stored in the token
+this can contain special information
+see how we can create and use this
+jwt token
+contains
+red - header
+pink -secret data which i will hide in this token
+blue - signature
+
+header payload signature
+
+how to create jwt token
+npm i jsonwebtoken
+
+only way to get the token is to login first
+
+now we will create a middleware
+why we need here
+i want my all apis to secure after login
+all apis work after authentication
+
+instead of writing token check in all the apis so better write a middle so that all apis it will work
+so creating in middlewares userauth
+
+now lets see how can we expire the jwt token
+
+const token = await jwt.sign({ \_id: user.\_id }, "DEV@Tinder$790", {
+expiresIn: "1d",
+});
+
+here we are just expiring the token,
+but we can also expire the cookies
+how do we expire cookies
+you can set that here
+res.cookie("token", token);
+
+moongoose schema methods
+i can attach some methods in user schema so that it will be applicable for all the users
+helper methods
+
+so you see we created jwt token in login api as below
+but we can offload this to different function lets see how we can do that
+so moving to user schema or user model by
+
+app.post("/login", async (req, res) => {
+try {
+//login api takes email and password validate email and password is correct
+//use bcrypt.compare
+const { emailId, password } = req.body;
+
+    //first check if the person emailId is valid or present in the db
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Emailid not present in the db");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      //create a jwt token
+      //lets write jwt token code here, first param is hiding the data in the token, here we are hiding userid
+      //second param is secret key, this is used to encrypt the data...this is kind of password and only server knows this
+      const token = await jwt.sign({ _id: user._id }, "DEV@Tinder$790", {
+        expiresIn: "1d",
+      });
+
+      //add the token to the cookie and send back the response to the user and this token can be used for other api calls to validate which now will be present in req.cookies
+      res.cookie("token", token);
+      res.send("login successful");
+    } else {
+      throw new Error("password is not valid");
+    }
+
+} catch (err) {
+res.status(400).send("login failed" + err.message);
+}
+});
