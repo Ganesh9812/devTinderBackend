@@ -1,0 +1,46 @@
+lets build more apis
+
+# DevTinder Apis
+
+- POST /signup
+- POST /login
+- POST /logout
+
+- GET /profile/view
+- PATCH /profile/edit
+- PATCH /profile/password
+
+- POST /request/send/interested/:userId
+- POST /request/send/ignored/:userId
+
+- POST /request/review/accepted/:requestId
+- POST /request/review/rejected/:requestId
+
+- GET /connections
+- GET /requests/received
+- GET /feed - gets you the profiles of other users on platform
+
+status: ignored, interested, accepted, rejected
+
+its not recommended to created all apis in app.js file
+so create express router and handle routing in a proper way using express router
+we will use express router to manage our apis efficiently
+
+we will create different routers to handle apis
+we create one route for login/signup/logout
+and another router to handle set of apis
+so we can create authRouter and we can login/signup/logout apis here
+
+same profileRouter
+
+this is for best practice
+auth.js manages the routes specific to auth
+
+app.use is same as router.use
+const app = express()
+const router = express.Router()
+
+lets build the logout api
+while creating a token you will set the expriy time
+and also in res.cookie also you can set the expiry time
+which is useful for logout api
